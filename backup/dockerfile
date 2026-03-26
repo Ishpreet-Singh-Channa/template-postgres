@@ -1,0 +1,14 @@
+ARG POSTGRES_VERSION
+FROM postgres:${POSTGRES_VERSION}-alpine
+ARG POSTGRES_VERSION
+
+# Install AWS CLI
+RUN apk add --no-cache aws-cli
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the backup script into the container
+COPY backup.sh /app/backup.sh
+RUN chmod +x /app/backup.sh
+CMD ["sh", "/app/backup.sh"]
