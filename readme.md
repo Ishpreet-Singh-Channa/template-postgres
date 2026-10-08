@@ -1,4 +1,4 @@
-# Template Postgres - [0.0.2]
+# Template Postgres - [0.0.3]
 
 Simple template for `postgres` database with the pg-vector extenstion.
 
