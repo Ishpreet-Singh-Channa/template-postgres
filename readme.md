@@ -1,94 +1,92 @@
-# Template - Postgres
+# Template Postgres - [0.0.2]
 
-Simple template for `postgres` database. \
-Exposes `Hasura` for interacting with the database. \
-Also provides a script to `Backup` database onto <b>Cloud</b> storage.
+Simple template for `postgres` database with the pg-vector extenstion.
+
+Exposes `Hasura` for interacting with the database.
+
+## Container Structure
+
+- ### main
+
+    The main postgres database uses pg vector by default.
+
+    Uses the `data/main.sql` file for database initialization on first boot.
+
+    ```bash
+    docker compose up -d main
+    ```
+
+- ### meta
+
+    A postgres db container for storing hasura meta-data, separate from the main database.
+
+    Uses the `data/meta.sql` file for database initialization on first boot.
+
+    ```bash
+    docker compose up -d meta
+    ```
+
+- ### Hasura
+
+    Hasura GraphQl engine for interacting with the database.
+
+    enable console to use it as a database admin panel as well.
+
+    ```bash
+    docker compose up -d hasura
+    ```
 
 ## How to use:
 
 - ### Set environment variables
 
-    Fist set up a few environment variables.
+    Fist set up a few environment variables in a `.env` file.
 
     #### Docker variables
-    1. `PROJECT_NAME`: The docker network name, and used for managing containers.
-    2. `HASURA_PORT`: This is the exposed port on the machine for connecting to hasura
+    1. `PROJECT_NAME`: The docker project name used for managing containers.
 
-    #### Postgres Variables
-    1. `POSTGRES_VERSION`: This is the version of the postgres to use.
-    2. `POSTGRES_DB`: The name of the postgres database.
-    3. `POSTGRES_USER`: The postgres user name.
-    4. `POSTGRES_PASSWORD`: The password for the user.
+    #### Main DB variable
+    1. `MAIN_POSTGRES_DB`: The name of the main database.
+    3. `MAIN_POSTGRES_USER`: The main db user name.
+    4. `MAIN_POSTGRES_PASSWORD`: The password for the main db user.
+
+    #### Meta DB variables
+    1. `META_POSTGRES_DB`: The name of the meta database.
+    2. `MAIN_POSTGRES_USER`: The meta db user name.
+    3. `MAIN_POSTGRES_PASSWORD`: The password for the meta db user.
 
     #### Hasura Variables
-    1. `HASURA_GRAPHQL_ENABLE_CONSOLE`: Boolean, enables the hasura remote console. Recommended to keep <b>false</b> on prodiction.
-    2. `HASURA_GRAPHQL_ADMIN_SECRET`: Should be a <b>'very strong'</b> password for hasura.
-
-    #### Backup Variables
-    1. `BACKUP_INTERVAL`: Integer representing backup interval in <b>seconds</b>.
-    2. `BACKUP_NUMBERS`: The Number of backups to keep
-    3. `AWS_ACCESS_KEY_ID`: AWS Access key id.
-    4. `AWS_SECRET_ACCESS_KEY`: Aws Secret key.
-    5. `AWS_REGION`: AWS Region.
-    6. `AWS_S3_BUCKET`: AWS Bucket, can also attach the prefix for the backups in it.
+    1. `HASURA_ENABLE_CONSOLE`: Boolean, enables the hasura remote console. Recommended to keep <b>false</b> on prodiction.
+    2. `HASURA_ADMIN_SECRET`: Should be a <b>'very strong'</b> password for hasura.
+    4. `HASURA_DEV_MODE`: Boolean, Recommended for development but not recommned for production.
 
     #### Example
 
     ```bash
     # Docker
     PROJECT_NAME=database-template
-    HASURA_PORT=8000
 
-    # Postgres
-    POSTGRES_USER=postgres
-    POSTGRES_PASSWORD=postgres
-    POSTGRES_DB=postgres
+    # MAIN db
+    MAIN_POSTGRES_USER=postgres
+    MAIN_POSTGRES_PASSWORD=postgres
+    MAIN_POSTGRES_DB=postgres
+
+    # META db
+    META_POSTGRES_USER=postgres
+    META_POSTGRES_PASSWORD=postgres
+    META_POSTGRES_DB=postgres
 
     # Hasura
-    HASURA_GRAPHQL_ADMIN_SECRET=admin   # Should be strong
-    HASURA_GRAPHQL_ENABLE_CONSOLE=true
-
-    # Backup
-    BACKUP_INTERVAL=3600
-    BACKUP_NUMBERS=3
-    AWS_ACCESS_KEY_ID=...
-    AWS_SECRET_ACCESS_KEY=...
-    AWS_REGION=...
-    AWS_s3_BUCKET=bucket_1/backups/database
+    EXPOSED_HASURA_PORT=8000
+    HASURA_ADMIN_SECRET=admin
+    HASURA_ENABLE_CONSOLE=true
+    HASURA_DEV_MODE=false
     ```
 
 - ### Run containers
+
     After the env are set, start up the docker containers
+
     ```bash
     docker compose up -d
-    ```
-
-## Container Structure
-
-- ### Postgres
-
-    The main postgres database uses pg vector by default.
-
-    ```bash
-    docker compose up -d postgres
-    ```
-
-- ### Hasura
-
-    Hasura GraphQl engine for interacting with the database. \
-     enable console to use it as a database admin panel as well.
-
-    ```bash
-    docker compose up -d hasura
-    ```
-
-- ### Backup
-
-    A Postgres alpine image with the <b>same version</b> as the postgres DB image to prevent version mismatch with `pg_dump`. \
-     Runs a bash script to:
-    1. Dump database tables and rows only
-    2. Upload to S3 for backup
-
-    ```bash
-    docker compose up -d backup
     ```
